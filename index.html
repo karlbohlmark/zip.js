@@ -1,0 +1,92 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<input type="file" id="file">
+
+<ul id="filelist"></ul>
+<script>
+	var module = {
+		exports: {}
+	}
+</script>
+<script src="zip.js"></script>
+<script>
+	z = module.exports.zip;
+	z.workerScriptsPath = 'WebContent/';
+
+	function onerror(message) {
+		alert(message);
+	}
+
+	function getEntries(file, onend) {
+			z.createReader(new z.BlobReader(file), function(zipReader) {
+				zipReader.getEntries(onend);
+			}, onerror);
+	}
+ 
+
+	function getEntryFile(entry, creationMethod, onend, onprogress) {
+		var writer, zipFileEntry;
+
+		function getData() {
+			entry.getData(writer, function(blob) {
+				var blobURL = creationMethod == "Blob" ? URL.createObjectURL(blob) : zipFileEntry.toURL();
+				onend(blobURL, function() {
+					if (creationMethod == "Blob")
+						URL.revokeObjectURL(blobURL);
+				});
+			}, onprogress);
+		}
+
+		if (creationMethod == "Blob") {
+			writer = new z.BlobWriter();
+			getData();
+		} else {
+			createTempFile(function(fileEntry) {
+				zipFileEntry = fileEntry;
+				writer = new z.FileWriter(zipFileEntry);
+				getData();
+			});
+		}
+	}
+
+	function download(entry, li, a) {
+		getEntryFile(entry, 'Blob', function(blobURL, revokeBlobURL) {
+			var clickEvent = document.createEvent("MouseEvent");
+
+			clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+			a.href = blobURL;
+			a.download = entry.filename;
+			a.dispatchEvent(clickEvent);
+			setTimeout(revokeBlobURL, 1);
+		}, function(current, total) {
+
+		});
+	}
+
+	var fileInput = document.querySelector('#file');
+	var fileList = document.querySelector('#filelist');
+
+	fileInput.addEventListener('change', function() {
+		fileInput.disabled = true;
+		getEntries(fileInput.files[0], function(entries) {
+			fileList.innerHTML = "";
+			entries.forEach(function(entry) {
+				var li = document.createElement("li");
+				var a = document.createElement("a");
+				a.textContent = entry.filename;
+				a.href = "#";
+				a.addEventListener("click", function(event) {
+					if (!a.download) {
+						download(entry, li, a);
+						event.preventDefault();
+						return false;
+					}
+				}, false);
+				li.appendChild(a);
+				fileList.appendChild(li);
+			});
+		});
+	}, false);
+
+</script>
