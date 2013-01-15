@@ -1,0 +1,65 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<input type="file" id="file">
+
+<ul id="filelist"></ul>
+<script>
+	var module = {
+		exports: {}
+	}
+</script>
+<script src="build/build.js"></script>
+<script>
+	var unzip = require('unzip');
+	var getEntries = unzip.getEntries;
+	var zip = unzip.zip;
+	zip.workerScriptsPath = 'WebContent/';
+	
+	var getEntryFile = unzip.getEntryFile;
+
+	function onerror(message) {
+		alert(message);
+	}
+
+	function download(entry, li, a) {
+		console.log(entry)
+		getEntryFile(entry, function(blobURL, revokeBlobURL) {
+			var clickEvent = document.createEvent("MouseEvent");
+
+			clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+			a.href = blobURL;
+			a.download = entry.filename;
+			a.dispatchEvent(clickEvent);
+			setTimeout(revokeBlobURL, 1);
+		}, function(current, total) {
+
+		});
+	}
+
+	var fileInput = document.querySelector('#file');
+	var fileList = document.querySelector('#filelist');
+
+	fileInput.addEventListener('change', function() {
+		fileInput.disabled = true;
+		getEntries(fileInput.files[0], function(entries) {
+			fileList.innerHTML = "";
+			entries.forEach(function(entry) {
+				var li = document.createElement("li");
+				var a = document.createElement("a");
+				a.textContent = entry.filename;
+				a.href = "#";
+				a.addEventListener("click", function(event) {
+					if (!a.download) {
+						download(entry, li, a);
+						event.preventDefault();
+						return false;
+					}
+				}, false);
+				li.appendChild(a);
+				fileList.appendChild(li);
+			});
+		});
+	}, false);
+
+</script>
