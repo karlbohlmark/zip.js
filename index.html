@@ -9,49 +9,22 @@
 		exports: {}
 	}
 </script>
-<script src="zip.js"></script>
+<script src="build/build.js"></script>
 <script>
-	z = module.exports.zip;
-	z.workerScriptsPath = 'WebContent/';
+	var unzip = require('unzip');
+	var getEntries = unzip.getEntries;
+	var zip = unzip.zip;
+	zip.workerScriptsPath = 'WebContent/';
+	
+	var getEntryFile = unzip.getEntryFile;
 
 	function onerror(message) {
 		alert(message);
 	}
 
-	function getEntries(file, onend) {
-			z.createReader(new z.BlobReader(file), function(zipReader) {
-				zipReader.getEntries(onend);
-			}, onerror);
-	}
- 
-
-	function getEntryFile(entry, creationMethod, onend, onprogress) {
-		var writer, zipFileEntry;
-
-		function getData() {
-			entry.getData(writer, function(blob) {
-				var blobURL = creationMethod == "Blob" ? URL.createObjectURL(blob) : zipFileEntry.toURL();
-				onend(blobURL, function() {
-					if (creationMethod == "Blob")
-						URL.revokeObjectURL(blobURL);
-				});
-			}, onprogress);
-		}
-
-		if (creationMethod == "Blob") {
-			writer = new z.BlobWriter();
-			getData();
-		} else {
-			createTempFile(function(fileEntry) {
-				zipFileEntry = fileEntry;
-				writer = new z.FileWriter(zipFileEntry);
-				getData();
-			});
-		}
-	}
-
 	function download(entry, li, a) {
-		getEntryFile(entry, 'Blob', function(blobURL, revokeBlobURL) {
+		console.log(entry)
+		getEntryFile(entry, function(blobURL, revokeBlobURL) {
 			var clickEvent = document.createEvent("MouseEvent");
 
 			clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
