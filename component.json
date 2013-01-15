@@ -1,0 +1,16 @@
+{
+  "name": "unzip",
+  "repo": "karlbohlmark/unzip",
+  "description": "unzip using zip.js",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "files": ["WebContent/inflate.js"],
+  "scripts": [
+    "zip.js",
+    "unzip.js"
+  ],
+  "main": "unzip.js"
+}
