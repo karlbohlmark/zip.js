@@ -1,6 +1,6 @@
 var zip = require('./zip.js').zip;
 
-zip.workerScriptsPath = 'karlbohlmark-unzip/WebContent/';
+zip.workerScriptsPath = 'karlbohlmark-zip.js/WebContent/';
 
 module.exports = function unzip(blob, cb) {
   getEntries(blob, function (entries) {
