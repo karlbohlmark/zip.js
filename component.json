@@ -1,6 +1,6 @@
 {
-  "name": "unzip",
-  "repo": "karlbohlmark/unzip",
+  "name": "zip.js",
+  "repo": "karlbohlmark/zip.js",
   "description": "unzip using zip.js",
   "version": "0.0.1",
   "keywords": [],
